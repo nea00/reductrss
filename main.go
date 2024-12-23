@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
-	"strings"
+	"net/http"
 
 	"github.com/gocolly/colly"
 	"github.com/mmcdole/gofeed"
@@ -25,7 +25,18 @@ Rinse and repeat
 
 const FEED string = "http://reductress.com/feed"
 
+type Image struct {
+	alt      string
+	ref      string
+	mimeType string
+	size     string
+}
+
 type Post struct {
+	postType  string
+	text      string
+	createdAt string
+	embed     []Image
 }
 
 func main() {
@@ -42,14 +53,23 @@ func createPost() Post {
 	return Post{}
 }
 
-func scrapePostImage(url string) {
-	collector := colly.NewCollector()
+func createImage(url string, title string) (Image, error) {
 
+	resp, _ := http.Head(url)
+	fmt.Println(resp.Header.Get("Content-Type"))
+	return Image{
+		alt: title,
+	}, nil
+}
+
+func scrapePostImage(url string, title string) Image {
+	collector := colly.NewCollector()
+	var img Image
+	var err error
 	collector.OnHTML("img[src]", func(e *colly.HTMLElement) {
 		if e.Attr("class") == "attachment-default-post size-default-post wp-post-image" || e.Attr("class") == "headshot" {
-			fmt.Println("found")
 			imgurl := e.Attr("src")
-			err := collector.Visit(imgurl)
+			img, err = createImage(imgurl, title)
 			if err != nil {
 				log.Printf("Failed to visit given url: %s", imgurl)
 				log.Fatal(err)
@@ -57,28 +77,19 @@ func scrapePostImage(url string) {
 		}
 	})
 
-	collector.OnResponse(func(r *colly.Response) {
-		if strings.Contains(r.Headers.Get("Content-Type"), "image/jpeg") {
-			path := "./image.jpeg"
-			err := r.Save(path)
-			if err != nil {
-				log.Printf("Failed to save image")
-				log.Fatal(err)
-			}
-		}
-	})
-
-	err := collector.Visit(url)
+	err = collector.Visit(url)
 	if err != nil {
 		log.Printf("Failed to visit given url: %s", url)
 		log.Fatal(err)
 	}
+
+	return img
+
 }
 
 func InitializeFeed() {
 	newFeed := readFeed()
-	fmt.Println(newFeed.Items[0].Published)
 	for _, item := range newFeed.Items {
-
+		scrapePostImage(item.Link, item.Title)
 	}
 }
