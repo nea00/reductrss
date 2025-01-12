@@ -1,4 +1,4 @@
-# Reductress bsky bot
+# Reductrss
 This is a bot that fetches latest Reductress articles from their [RSS feed](http://reductress.com/feed) and posts them to [Bluesky](https://bsky.app/)
 
 # Libraries used
