@@ -302,7 +302,6 @@ func createPostArray(auth AuthData) []Post {
 	currentTime := time.Now()
 
 	if _, err := os.Stat("date"); err != nil {
-		os.WriteFile("date", []byte(currentTime.Format("Mon, 02 Jan 2006 15:04:05 -0700")), 0644)
 		init = true
 	}
 
@@ -340,6 +339,8 @@ func createPostArray(auth AuthData) []Post {
 		}
 		postArray = append(postArray, post)
 	}
+	os.WriteFile("date", []byte(currentTime.Format("Mon, 02 Jan 2006 15:04:05 -0700")), 0644)
+
 	return postArray
 }
 
