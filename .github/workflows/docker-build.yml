@@ -22,8 +22,8 @@
 
             - name: Build Docker image
               run: |
-               docker build -t ghcr.io/${{ github.repository }}/reductress-bsky-bot:latest .
+               docker build -t ghcr.io/${{ github.actor }}/reductress-bsky-bot:latest .
 
             - name: Push Docker image
               run: |
-               docker push ghcr.io/${{ github.repository }}/reductress-bsky-bot:latest
+               docker push ghcr.io/${{ github.actor }}/reductress-bsky-bot:latest
