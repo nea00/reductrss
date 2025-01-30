@@ -18,7 +18,7 @@
               with:
                registry: ghcr.io
                username: ${{ github.actor }}
-               token: ${{ secrets.REGISTRY_SECRET }}
+               password: ${{ secrets.REGISTRY_SECRET }}
 
             - name: Build Docker image
               run: |
