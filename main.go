@@ -17,6 +17,7 @@ import (
 	"github.com/mmcdole/gofeed"
 
 	_ "image/jpeg"
+	_ "image/png"
 )
 
 type Image struct {
@@ -83,7 +84,6 @@ func main() {
 
 	auth := authenticate()
 	postArray := createPostArray(auth)
-
 	sendPosts(postArray, auth)
 }
 
@@ -310,6 +310,7 @@ func createPostArray(auth AuthData) []Post {
 	newFeed := readFeed()
 
 	for _, item := range newFeed.Items {
+
 		if !init && compareTime(item.Published) {
 			break
 		}
@@ -339,7 +340,15 @@ func createPostArray(auth AuthData) []Post {
 		}
 		postArray = append(postArray, post)
 	}
-	os.WriteFile("date", []byte(currentTime.Format("Mon, 02 Jan 2006 15:04:05 -0700")), 0644)
+
+	layout := "Mon, 02 Jan 2006 15:04:05 -0700"
+	lastPost := newFeed.Items[0].Published
+	postTime, err := time.Parse(layout, lastPost)
+	postTime = postTime.Add(time.Second)
+	if err != nil {
+		log.Fatal(err)
+	}
+	os.WriteFile("date", []byte(postTime.Format(layout)), 0644)
 
 	return postArray
 }
